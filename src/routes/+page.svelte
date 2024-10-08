@@ -44,8 +44,12 @@
 		);
 		input = '';
 	}
+	function handleKey(e) {
+		if (e.keyCode == 13) addItem(input);
+	}
 	function deleteItem(item: Item) {
-		db.transact(tx.items[item.id].delete());
+		let result = confirm('Sure you want to delete?');
+		if (result) db.transact(tx.items[item.id].delete());
 	}
 	function toggleDone(item: Item) {
 		db.transact(tx.items[item.id].update({ done: !item.done }));
@@ -61,29 +65,50 @@
 	}
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-
-{#if error}
-	<h1>Error: {error}</h1>
-{:else}
-	<input bind:value={input} />
-	<button on:click={addItem(input)}>Add</button>
-	{#each items as item}
-		<div class="item">
-			<h3>{item.text}</h3>
-			<button class="square" on:click={deleteItem(item)}>X</button>
+<main>
+	{#if error}
+		<h1>Error: {error}</h1>
+	{:else}
+		<div class="add-container">
+			<div class="add">
+				<input bind:value={input} on:keydown={handleKey} />
+				<button type="submit" on:click={() => addItem(input)}>Add</button>
+			</div>
 		</div>
-	{/each}
-{/if}
+		{#each items as item}
+			<div class="item">
+				<h3>{item.text}</h3>
+				<div>
+					<input type="checkbox" checked={item.done} on:change={() => toggleDone(item)} />
+					<button class="square" on:click={() => deleteItem(item)}>X</button>
+				</div>
+			</div>
+		{/each}
+	{/if}
+</main>
 
 <style>
+	main {
+		width: calc(100% - 60px);
+		height: calc(100% - 60px);
+		padding: 30px;
+	}
+	.add-container {
+		width: 100%;
+		display: flex;
+		justify-content: space-around;
+	}
+	.add {
+		padding: 10px 30px;
+		background-color: rgb(220, 230, 220);
+		border-radius: 10px;
+	}
 	.item {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 10px 30px;
-		margin: 20px;
+		margin: 20px 0;
 		background-color: rgb(230, 230, 230);
 		border-radius: 10px;
 	}
