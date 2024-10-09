@@ -33,12 +33,10 @@
 	let items: Item[] = [];
 	let input: string;
 	let expanded = false;
-	let container;
 
 	const onFocus = () => expanded = true;
 	const onBlur = () => expanded = false;
 	function selectColor(color: string) { selectedColor = color; }
-	function onWindowClick(e) {if (container.contains(e.target) == false) expanded = false; }
 
 	onMount(() => {
 		db.subscribeQuery({ items: {} }, (resp) => {
@@ -47,6 +45,7 @@
 				return;
 			}
 			if (resp.data) {
+				console.log(resp.data);
 				items = resp.data.items;
 			}
 		});
@@ -65,13 +64,14 @@
 		selectedColor = '';
 	}
 	function handleKey(e) {
-		if (e.keyCode == 13) {addItem(input, selectedColor); expanded = false;};
+		if (e.keyCode == 13) addItem(input, selectedColor);
 	}
 	function deleteItem(item: Item) {
 		let result = confirm('Sure you want to delete?');
 		if (result) db.transact(tx.items[item.id].delete());
 	}
 	function toggleDone(item: Item) {
+		console.log(item.color);
 		db.transact(tx.items[item.id].update({ done: !item.done }));
 	}
 	function deleteCompleted(items: Item[]) {
@@ -85,29 +85,26 @@
 	}
 </script>
 
-<svelte:window on:click={onWindowClick} />
-
 <main class="flex flex-col items-center w-screen p-5">
 	{#if error}
 		<h1>Error: {error}</h1>
 	{:else}
 		<div class="add-container">
-			<div bind:this={container} class="border-2 border-black p-2 rounded-md">
-				<div class="flex">
-					<input bind:value={input} on:focus={onFocus} on:keydown={handleKey} class="border-2 border-black rounded-md p-2 grow m-5"/>
-					<button type="submit" on:click={() => addItem(input, selectedColor)} class="bg-my-orange rounded-md p-2 m-5">Add</button>
-				</div>
-				<div hidden={!expanded}>
+			<div class="bg-orange-300 py-5 px-8 rounded-md">
+				<input bind:value={input} on:focus={onFocus} on:keydown={handleKey} />
+				<button type="submit" on:click={() => addItem(input, selectedColor)}>Add</button>
+				<div>
 					{#each Object.entries(colors) as [title, color], i}
 						<label class="{color} w-10 h-10 relative inline-block m-5 rounded-md">
 							{#if i ==0}
-							<input id="picker" class="{color} opacity-0 h-0 w-0 peer" on:input={() => selectColor(title)} type="radio" name="colors" value={color} checked/>
+							<input class="{color} opacity-0 h-0 w-0" on:input={() => selectColor(title)} type="radio" name="colors" value={color} checked/>
 							{:else}
-							<input id="picker" class="{color} opacity-0 h-0 w-0 peer" on:input={() => selectColor(title)} type="radio" name="colors" value={color}/>
+							<input class="{color} opacity-0 h-0 w-0" on:input={() => selectColor(title)} type="radio" name="colors" value={color}/>
 							{/if}
-							<span class="w-10 h-10 {color} cursor-pointer absolute rounded-md peer-checked:border-2 peer-checked:border-black"></span>
+							<span class="w-10 h-10 {color} cursor-pointer absolute rounded-md"></span>
 						</label>
 					{/each}
+					<h2>{selectedColor}</h2>
 				</div>
 			</div>
 		</div>
@@ -115,7 +112,7 @@
 			<div class="flex lg:w-2/3 md:w-4/5 w-full justify-between items-center px-8 py-5 {colors[item.color]} rounded-md my-5">
 				<h3>{item.text}</h3>
 				<div class="flex items-center gap-4">
-					<Switch item={item} toggle={() => toggleDone(item)}/>
+					<!--<Switch item={item} toggle={toggleDone(item)}/>-->
 					<button class="" on:click={() => deleteItem(item)}><Trash2/></button>
 				</div>
 			</div>
@@ -128,8 +125,5 @@
 		width: 100%;
 		display: flex;
 		justify-content: space-around;
-	}
-	input.checked + .slider {
-		border: 2px solid black;
 	}
 </style>

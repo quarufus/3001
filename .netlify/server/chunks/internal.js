@@ -1,4 +1,4 @@
-import { H as HYDRATION_ERROR, g as get_descriptor, d as define_property, i as is_array, a as HYDRATION_START, b as HYDRATION_END, c as array_from, r as render, p as push$1, s as setContext, e as pop$1 } from "./index.js";
+import { H as HYDRATION_ERROR, g as get_descriptor, d as define_property, i as is_array, a as HYDRATION_START, b as HYDRATION_END, c as array_from, e as is_passive_event, r as render, p as push$1, s as setContext, f as pop$1 } from "./index.js";
 const DEV = false;
 let base = "";
 let assets = base;
@@ -896,10 +896,6 @@ function assign_nodes(start, end) {
     effect2.nodes_end = end;
   }
 }
-const PASSIVE_EVENTS = ["touchstart", "touchmove"];
-function is_passive_event(name) {
-  return PASSIVE_EVENTS.includes(name);
-}
 function mount(component, options2) {
   return _mount(component, options2);
 }
@@ -1295,7 +1291,7 @@ const options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "etjz0d"
+  version_hash: "70387s"
 };
 async function get_hooks() {
   return {};
